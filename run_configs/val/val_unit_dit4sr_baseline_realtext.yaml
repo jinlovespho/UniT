@@ -19,39 +19,15 @@ data:
       lq_img_path: /mnt/dataset1/text_restoration/tair_published/real_text/LQ
       hq_img_path: /mnt/dataset1/text_restoration/tair_published/real_text/HQ
       ann_path: /mnt/dataset1/text_restoration/tair_published/real_text/realtext_ann.json
-      vlm_captioner: 
-      vlm_input_ques: 
-
       # vlm_caption_path: result_vlm/orig_dit4sr/realtext/llava13b_prompt
       # vlm_caption_path: result_vlm/lq_caption/realtext/realtext_Englishques0/qwenvl_7b
       # vlm_caption_path: result_vlm/lq_caption/realtext/realtext_Englishques1/qwenvl_7b
       vlm_caption_path: result_vlm/lq_caption/realtext/realtext_Englishques2/qwenvl_7b
       # vlm_caption_path: result_vlm/lq_caption/realtext/realtext_Englishques3/qwenvl_7b
-
       val_num_img: 847
       val_img_id: []
       # val_img_id: [Canon_001_HR_crop_1, Canon_21_x4_5_crop_0, Canon_24_x4_21_crop_0, Canon_30_x4_44_crop_0, Canon_31_x4_52_crop_0, Canon_32_x4_21_crop_0, Canon_32_x4_23_crop_0, Canon_33_x4_33_crop_0, Canon_37_x4_45_crop_0, Canon_41_x4_32_crop_0, Canon_41_x4_35_crop_0, DSC_0972_x4_13_crop_0, DSC_0984_x4_2_crop_0, DSC_0984_x4_6_crop_0, DSC_1023_x4_16_crop_0, DSC_1330_x4_4_crop_0, DSC_1342_x4_6_crop_0,  ]
-
-    satext_lv3:
-      lq_img_path: 
-      hq_img_path: 
-      ann_path: 
-      vlm_captioner: 
-      vlm_input_ques: 
-      vlm_caption_path: 
-      val_num_img: 
-      val_img_id: []
   
-    satext_lv2:
-      lq_img_path: 
-      hq_img_path: 
-      ann_path: 
-      vlm_captioner: 
-      vlm_input_ques: 
-      vlm_caption_path: 
-      val_num_img: 
-      val_img_id: []
-
     satext_lv1:
       lq_img_path: 
       hq_img_path: 
@@ -62,13 +38,31 @@ data:
       val_num_img: 
       val_img_id: []
 
+    satext_lv2:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
 
-    # choose from [gt, pred_tsm, pred_vlm, null]
+    satext_lv3:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+
     # text_cond_prompt: "gt"
     # text_cond_prompt: "null"
     # text_cond_prompt: "pred_tsm"
     text_cond_prompt: "pred_vlm"
-
 
 
     vlm:
@@ -85,8 +79,6 @@ data:
 
       # vlm_apply_at_iter: [30]
 
-      tsm_apply_at_iter:
-
 
 
     ocr:
@@ -101,7 +93,6 @@ data:
 
     eval_region: all
 
-
     added_prompt:
     negative_prompt: 
     # added_prompt: Cinematic, hyper sharpness, highly detailed, perfect without deformations, camera, hyper detailed photo - realistic maximum detail, 32k, Color Grading, ultra HD, extreme meticulous detailing, skin pore detailing.
@@ -113,7 +104,6 @@ data:
     # guidance_scale: 8.0
 
     start_point: noise
-    
     latent_tiled_size: 64
     latent_tiled_overlap: 24
     upscale: 4
@@ -169,7 +159,6 @@ train:
 
 
   transformer:
-    # choose from ["dit4sr", "dit4sr_ocrbranch_ocr2hq", "dit4sr_ocrbranch_ocr2hq2ocr"]
     architecture: "dit4sr"
     ocr_branch_init: 
     lr: 
@@ -207,8 +196,7 @@ val:
 
 
 save:
-  # output_dir: ./result_val_FINAL_dit4sr/full_eval
-  output_dir: ./result_val_FINAL_FINAL_dit4sr/full_eval
+  output_dir: ./result_val/dit4sr_baseline
   checkpointing_steps:
 
 
@@ -218,19 +206,6 @@ log:
     key: e32eed0c2509bf898b850b0065ab62345005fb73
     project_name: cvpr26_unit
     server: 20
-    gpu: 6
-    # msg: "FINAL__ir-dit4sr-s1-8k"
-    # msg: "FINAL__ir-dit4sr-s1-32k"
-
-    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__gt-prompt"
-    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques0-qwen7b"
-    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques1-qwen7b"
-    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques2-qwen7b"
-    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques3-qwen7b"
-
-
-    msg: "dit4sr-baseline__vlm-ques2-qwenvl-7b-cfg1"
-    # msg: "dit4sr-baseline__vlm-ques2-qwenvl-7b-cfg8"
-    
-
+    gpu: 7
+    msg: "dit4sr-baseline__vlm-ques2-qwenvl-7b-cfg8"
   log_dir: logs

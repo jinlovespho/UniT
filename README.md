@@ -34,8 +34,8 @@ UniT: Unified Diffusion Transformer for High-fidelity Text-Aware Image Restorati
 ### 1. Conda Environment
 
 ```bash
-conda create -n UniT python=3.9 -y
-conda activate UniT
+conda create -n unit python=3.9 -y
+conda activate unit
 ```
 
 **2. Library Installation**
@@ -76,7 +76,17 @@ bash download_bash/download_testr.sh
 ```
 
 
-## 
+## 🚀 Inference Demo
+### Demo Script 
+Download the released checkpoint of our model (UniT) from [google drive](), and set the corresponding path in the demo [configuration file](). Then, run the script below to perform text-aware image restoration on low-quality image samples. The results will be saved in val_demo_result/ by default.
+```bash
+
+```
+
+
+### Demo Result
+Running the demo inference script will generate the following text restoration results. The visualized images are shown in the order: Low-Quality (LQ) image / Restored image / High-Quality (HQ) Ground Truth image. Note that when the text in the LQ images is severely degraded, the model may fail to accurately restore the textual content due to insufficient visual information.visualized
+
 
 
 

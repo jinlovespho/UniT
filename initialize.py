@@ -366,28 +366,9 @@ def load_model(cfg, accelerator):
         dit_ckpt_path = cfg.ckpt.init_path.dit
     
     if cfg.train.transformer.architecture == 'dit4sr':
-        from model_dit4sr.transformer_sd3 import SD3Transformer2DModel
+        from model_unit.transformer_sd3 import SD3Transformer2DModel
         transformer = SD3Transformer2DModel.from_pretrained_local(dit_ckpt_path, subfolder="transformer", revision=None, variant=None, accelerator=accelerator, cfg=cfg)
-        if accelerator.is_main_process:
-            print('-'*50)
-            print('     Using dit4sr architecture ')
     
-            
-    elif cfg.train.transformer.architecture == 'dit4sr_ocrbranch_ocr2hq':
-        from model_dit4sr.transformer_sd3_ocrbranch_ocr2hq import SD3Transformer2DModel_OCRBranch_OCR2HQ
-        transformer = SD3Transformer2DModel_OCRBranch_OCR2HQ.from_pretrained_local(dit_ckpt_path, subfolder="transformer", revision=None, variant=None, accelerator=accelerator, cfg=cfg)
-        if accelerator.is_main_process:
-            print('-'*50)
-            print('     Using dit4sr_ocrbranch_OCR2HQ architecture')
-    
-    
-    elif cfg.train.transformer.architecture == 'dit4sr_ocrbranch_ocr2hq2ocr':
-        from model_dit4sr.transformer_sd3_ocrbranch_ocr2hq2ocr import SD3Transformer2DModel_OCRBranch_OCR2HQ2OCR
-        transformer = SD3Transformer2DModel_OCRBranch_OCR2HQ2OCR.from_pretrained_local(dit_ckpt_path, subfolder="transformer", revision=None, variant=None, accelerator=accelerator, cfg=cfg)
-        if accelerator.is_main_process:
-            print('-'*50)
-            print('     Using dit4sr_ocrbranch_OCR2HQ2OCR architecture')
-
             
     transformer.requires_grad_(False)
     models['transformer'] = transformer
@@ -467,31 +448,6 @@ def load_model_params(cfg, accelerator, models):
     train_param_count=0
     frozen_param_count=0
     
-    # # load image restoration module 
-    # if 'dit4sr' in cfg.train.model:
-    #     for name, param in models['transformer'].named_parameters():
-    #         numel = param.numel()
-    #         tot_param_count += numel
-    #         tot_param_names.append(name)
-
-    #         train_this_param = False
-    #         # train lr branch
-    #         if ('lrbranch' in cfg.train.finetune) and ('control' in name):
-    #             train_this_param = True 
-    #         # train all attention layers
-    #         if ('attns' in cfg.train.finetune) and ('attn' in name):
-    #             train_this_param = True 
-            
-    #         if train_this_param:
-    #             param.requires_grad = True
-    #             train_param_count += numel
-    #             train_param_names.append(name)
-    #         else:
-    #             param.requires_grad = False
-    #             frozen_param_count += numel
-    #             frozen_param_names.append(name)
-    
-    
     
     # set trainable params in transformer
     if 'transformer' in cfg.train.model:
@@ -562,10 +518,6 @@ def load_model_params(cfg, accelerator, models):
 
 def load_optim(cfg, accelerator, models):
 
-    # # scale lr
-    # if cfg.train.scale_lr:
-    #     cfg.train.learning_rate.dit = (cfg.train.learning_rate.dit * cfg.train.gradient_accumulation_steps * cfg.train.batch_size * accelerator.num_processes)
-
     # setup optimizer class
     optimizer_class = bnb.optim.AdamW8bit if cfg.train.use_8bit_adam else torch.optim.AdamW
     
@@ -632,12 +584,10 @@ def set_model_device(cfg, accelerator, models):
             find_unused_parameters=True
         )
     
-
     '''
         for accelerator.mixed_precision == "fp16", we first put all models on fp16
         and then only for parameters that have requires_grad=True, which are trainable parameters,
         they are only set to fp32 by cast_training_params function above.
     '''
-    
     
     return weight_dtype

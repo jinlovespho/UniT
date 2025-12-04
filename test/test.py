@@ -9,8 +9,8 @@ from accelerate.utils import set_seed
 from accelerate.logging import get_logger
 
 import torch
-import torchvision.transforms as T 
 import torch.nn.functional as F 
+import torchvision.transforms as T 
 from torchvision.utils import save_image
 
 import cv2 
@@ -23,7 +23,7 @@ from omegaconf import OmegaConf
 
 import initialize 
 from dataloaders.utils import encode, decode
-from pipelines.pipeline_dit4sr import StableDiffusion3ControlNetPipeline
+from pipelines.pipeline_unit import StableDiffusion3ControlNetPipeline
 
 from utils.wavelet_color_fix import wavelet_color_fix, adain_color_fix
 
@@ -65,29 +65,15 @@ def main(cfg):
     if cfg.data.val.text_cond_prompt == 'pred_vlm':
         if cfg.data.val.eval_list[0] == 'realtext':
             vlm_caption_path = cfg.data.val.realtext.vlm_caption_path
-            # vlm_captioner = cfg.data.val.realtext.vlm_captioner
-            # vlm_input_ques = cfg.data.val.realtext.vlm_input_ques
         elif cfg.data.val.eval_list[0] == 'satext_lv3':
             vlm_caption_path = cfg.data.val.satext_lv3.vlm_caption_path
-            # vlm_captioner = cfg.data.val.satext_lv3.vlm_captioner
-            # vlm_input_ques = cfg.data.val.satext_lv3.vlm_input_ques
         elif cfg.data.val.eval_list[0] == 'satext_lv2':
             vlm_caption_path = cfg.data.val.satext_lv2.vlm_caption_path
-            # vlm_captioner = cfg.data.val.satext_lv2.vlm_captioner
-            # vlm_input_ques = cfg.data.val.satext_lv2.vlm_input_ques
         elif cfg.data.val.eval_list[0] == 'satext_lv1':
             vlm_caption_path = cfg.data.val.satext_lv1.vlm_caption_path
-            # vlm_captioner = cfg.data.val.satext_lv1.vlm_captioner
-            # vlm_input_ques = cfg.data.val.satext_lv1.vlm_input_ques
         elif cfg.data.val.eval_list[0] == 'satext_test':
             vlm_caption_path = cfg.data.val.satext_test.vlm_caption_path
-            # vlm_captioner = cfg.data.val.satext_lv1.vlm_captioner
-            # vlm_input_ques = cfg.data.val.satext_lv1.vlm_input_ques
-        
-        # cfg.vlm_captioner = vlm_captioner
-        # cfg.vlm_input_ques_num = vlm_input_ques
         cfg.vlm_caption_path = vlm_caption_path
-        
         # english focused input prompt
         question_list = [
             'Please describe the actual objects in the image in a very detailed manner. Please do not include descriptions related to the focus and bokeh of this image. Please do not include descriptions like the background is blurred.',
@@ -96,11 +82,7 @@ def main(cfg):
             "Describe the contents of this blurry image, focusing only on any visible English text or characters.",
             "Extract all visible English words and letters from this low-quality image, even if they appear unclear.",
         ]
-        
-        # cfg.vlm_input_ques = question_list[vlm_input_ques]
-        # exp_name = f'{exp_name}__{cfg.data.val.text_cond_prompt}-prompt__{vlm_captioner}__ques-{str(vlm_input_ques)}'
         exp_name = f'{exp_name}__{cfg.data.val.text_cond_prompt}-prompt__{vlm_caption_path}'
-    
     else:
         exp_name = f'{exp_name}__{cfg.data.val.text_cond_prompt}-prompt'
     
@@ -577,10 +559,8 @@ def main(cfg):
                     gt_poly = gt_polys[vis_img_idx]   # 16 2
                     gt_poly = gt_poly.astype(np.int32)
                     gt_txt = gt_texts[vis_img_idx]
-                    # cv2.polylines(vis_hq1, [gt_poly], isClosed=True, color=(0,255,0), thickness=2)
-                    # cv2.putText(vis_hq1, gt_txt, (gt_poly[0][0]+20, gt_poly[0][1]+5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-                    cv2.polylines(vis_hq1, [gt_poly], isClosed=True, color=(0,0,255), thickness=2)
-                    cv2.putText(vis_hq1, gt_txt, (gt_poly[6][0]+20, gt_poly[6][1]+5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                    cv2.polylines(vis_hq1, [gt_poly], isClosed=True, color=(0,255,0), thickness=2)
+                    cv2.putText(vis_hq1, gt_txt, (gt_poly[0][0], gt_poly[0][1]+10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
                 # ------------------ overlay gt ocr ------------------
                 
                 
@@ -599,10 +579,8 @@ def main(cfg):
                         pred_poly = np.array(pred_poly.detach().cpu()).astype(np.int32)         
                         pred_rec = vis_recs[vis_img_idx]     # 25
                         pred_txt = decode(pred_rec.tolist())
-                        # cv2.polylines(vis_pred, [pred_poly], isClosed=True, color=(0,255,0), thickness=2)
-                        # cv2.putText(vis_pred, pred_txt, (pred_poly[0][0]+20, pred_poly[0][1]+5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-                        cv2.polylines(vis_pred, [pred_poly], isClosed=True, color=(0,0,255), thickness=2)
-                        cv2.putText(vis_pred, pred_txt, (pred_poly[6][0]+20, pred_poly[6][1]+5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                        cv2.polylines(vis_pred, [pred_poly], isClosed=True, color=(0,255,0), thickness=2)
+                        cv2.putText(vis_pred, pred_txt, (pred_poly[0][0], pred_poly[0][1]+10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
                     h, w, _ = vis_pred.shape
                     cv2.putText(vis_pred, str(timeiter_int), (w-50, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2)
                     # ------------------ overlay pred ocr ------------------

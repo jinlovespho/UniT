@@ -171,5 +171,9 @@ cython_debug/
 #.idea/
 
 
-# UniT
-.vscode/
+# UniT ignore folder 
+.vscode
+wandb
+preset
+result_train 
+result_val

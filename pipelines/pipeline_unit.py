@@ -29,7 +29,7 @@ from diffusers.models.autoencoders import AutoencoderKL
 # from diffusers.models.controlnet_sd3 import SD3ControlNetModel, SD3MultiControlNetModel
 # from diffusers.models.transformers import SD3Transformer2DModel
 # from model_SD3.controlnet_sd3 import SD3ControlNetModel, SD3MultiControlNetModel
-from model_dit4sr.transformer_sd3 import SD3Transformer2DModel
+from model_unit.transformer_sd3 import SD3Transformer2DModel
 from diffusers.schedulers import FlowMatchEulerDiscreteScheduler
 from diffusers.utils import (
     USE_PEFT_BACKEND,
@@ -1092,11 +1092,9 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                     if (i>0):
                         
                         if ((cfg.data.val.text_cond_prompt == 'pred_tsm') and ('ts_module' in cfg.train.model)):
-                            print('1')
                             prompt_embeds_input = prompt_embeds_tsm 
                         
                     else:
-                        print('2')
                         prompt_embeds_input = prompt_embeds
                         
                     
@@ -1110,11 +1108,9 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                     else:
                         # # TEXTUAL PROMPT GUIDANCE (TSM)
                         if (i>0):
-                            print('1 pool')
                             if ((cfg.data.val.text_cond_prompt == 'pred_tsm') and ('ts_module' in cfg.train.model)):
                                 pooled_prompt_embeds_input = pooled_prompt_embeds_tsm
                         else:
-                            print('2 pool')
                             pooled_prompt_embeds_input = pooled_prompt_embeds
                     
                     # breakpoint()
