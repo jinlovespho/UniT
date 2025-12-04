@@ -77,8 +77,14 @@ data:
       vis_timestep: [0, 1, 2, 3, 4, 5, 10, 20, 30, 39]  # visualize selected time iter
     
 
-    attn:
-      vis_map: False
+    attention_map::
+      vlm:
+        vis_map: False
+      tsm:
+        vis_map: False 
+      dit:
+        vis_map: False 
+
 
     eval_region: all
 

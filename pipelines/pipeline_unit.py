@@ -1128,27 +1128,20 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                     noise_pred = trans_out[0]
                     
                     
-                    if cfg.data.val.attn.vis_map:
-                        # ------------------------------------
-                        #            VIS ATTN MAP 
-                        # ------------------------------------
-                        
+                    # ------------------------------------
+                    #          DiT: VIS ATTN MAP 
+                    # ------------------------------------
+                    if cfg.data.val.attention_map.dit.vis_map:
                         attn_maps=[]
                         for trans_blk in self.transformer.transformer_blocks:
                             attn_map = trans_blk.attn.processor.attn_map
                             attn_maps.append(attn_map)  # 2 24 2381 2381
-                        
-
-                        
                         num_img_tkn = 1024
                         num_txt_tkn = 333 
-                        
                         hq_idx = num_img_tkn
                         lq_idx = num_img_tkn + num_img_tkn
                         txt_idx = num_img_tkn + num_img_tkn + num_txt_tkn
-
                         dict_maps = {k: [] for k in ['h2h','h2l','h2t','l2h','l2l','l2t','t2h','t2l','t2t']}
-
                         for m in attn_maps:
                             dict_maps['h2h'].append(m[:, :, 0:hq_idx, 0:hq_idx])
                             dict_maps['h2l'].append(m[:, :, 0:hq_idx, hq_idx:lq_idx])
@@ -1158,37 +1151,22 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                             dict_maps['l2t'].append(m[:, :, hq_idx:lq_idx, lq_idx:txt_idx])
                             dict_maps['t2h'].append(m[:, :, lq_idx:txt_idx, 0:hq_idx])
                             dict_maps['t2l'].append(m[:, :, lq_idx:txt_idx, hq_idx:lq_idx])
-                            dict_maps['t2t'].append(m[:, :, lq_idx:txt_idx, lq_idx:txt_idx])
-                        
-                        
-                        
+                            dict_maps['t2t'].append(m[:, :, lq_idx:txt_idx, lq_idx:txt_idx])                        
                         # ------------- prepare img and prompt -------------
                         lq_img = control_image_pt 
                         hq_img = kwargs['hq_img']
-                        
                         clip_prompt_tkn = self.tokenizer(prompt, padding='max_length', max_length=77, truncation=True, return_tensors='pt').input_ids
                         t5_prompt_tkn = self.tokenizer_3(prompt, padding='max_length', max_length=256, truncation=True, add_special_tokens=True, return_tensors='pt').input_ids
-                        
                         clip_decode_prompt = self.tokenizer.batch_decode(clip_prompt_tkn)
                         t5_decode_prompt = self.tokenizer_3.batch_decode(t5_prompt_tkn)
-                        
-                        
                         # ------------- visualize h2t -------------
                         maps = torch.stack(dict_maps['h2t'])    # 24 2 24 1024 333 (layer cfg head dim dim)
                         pos_maps = maps[:,-1]                   # 24 24 1024 333, get cfg pos map [neg, pos]
                         neg_maps = maps[:, 0]
                         map = pos_maps.mean(dim=(0,1))              # 1024 333, avg layer and head
-
-
                         map = map.transpose(0,1)
                         map_clip = map[0:77] 
                         map_t5 = map[77:]
-                        
-
-                        
-                        breakpoint()
-                        
-                        
                         # ------------- visualize t2h -------------
                         lq_img = control_image_pt
                         prompt = prompt 
@@ -1197,14 +1175,6 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                         neg_maps = maps[:, 0]
                         map = pos_maps.mean(dim=(0,1))              # 333 1024, avg layer and head
 
-
-
-                    
-                    
-                    
-                    
-                    
-                    
     
                     # ts module forward pass 
                     if 'ts_module' in cfg.train.model:
@@ -1216,31 +1186,18 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                             height = 64 // patch_size       # 32
                             width = 64 // patch_size        # 32
                             
-                            
-                            # -- only hq feat -- 
-                            # 1 2048 1536 -> only bring the hq tokens -> 1 1024 1536
-                            # extracted_feats = [ rearrange(feat['extract_feat'], 'b (H W) (pH pW d) -> b d (H pH) (W pW)', H=height, W=width, pH=patch_size, pW=patch_size) for feat in etc_out ]    # b 384 64 64 
-                            
                             # -- hq + lq feat --
                             # 1 2048 1536 -> bring both hq and lq tokens -> 1 2 1024 1536
                             if cfg.train.transformer.feat_extract == 'hqlq_feat':
                                 num_concat_feat = 2
                             else:
                                 num_concat_feat = 1
-                            extracted_feats = [ rearrange(feat['extract_feat'], 'b (N H W) (pH pW d) -> b (N d) (H pH) (W pW)', N=num_concat_feat, H=height, W=width, pH=patch_size, pW=patch_size) for feat in etc_out ]    # b 384 64 64 
-                            
-                            # if cfg.train.repa.use_repa_tsm:
-                            #     # REPA - extract features from specific layers
-                            #     extracted_feats = [feat for idx_feat, feat in enumerate(extracted_feats) if idx_feat in cfg.train.repa.tsm_applied_layer]
-                    
-                            
-                            
+                            extracted_feats = [ rearrange(feat['extract_feat'], 'b (N H W) (pH pW d) -> b (N d) (H pH) (W pW)', N=num_concat_feat, H=height, W=width, pH=patch_size, pW=patch_size) for feat in etc_out ]    # b 384 64 64                             
                             extracted_feats = [f.to(torch.float32) for f in extracted_feats]
                             with torch.cuda.amp.autocast(enabled=False):
                                 with torch.no_grad():
                                     _, ocr_result = self.ts_module(extracted_feats, targets=None, MODE='VAL')                        
                             results_per_img = ocr_result[0]
-                            
                             
                             
                             # save ocr results for ocr visualization
@@ -1252,7 +1209,6 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                                 elif i in cfg.data.val.ocr.vis_timestep:
                                     val_ocr_result.append({f'timeiter_{i}': results_per_img})
                                     
-
 
                             ts_pred_text=[]
                             # pred_polys=[]
@@ -1277,9 +1233,8 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                             
                             
                             
-                            
                             # -------------------------------------------------
-                            #                   vlm correction
+                            #                   VLM CORRECTION
                             # -------------------------------------------------    
                             if cfg.data.val.vlm.vlm_correction:
                                 
