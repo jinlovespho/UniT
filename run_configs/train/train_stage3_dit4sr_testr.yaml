@@ -1,0 +1,196 @@
+
+
+init:
+  seed: 42
+
+
+data:
+  train:
+    name: satext
+    hq_img_path: /mnt/dataset1/text_restoration/100K/train
+    ann_path: /mnt/dataset1/text_restoration/100K/train/dataset.json
+    # hq_prompt_path: /mnt/dataset1/text_restoration/100K/dit4sr/data/train/llava13b_hq_prompt
+    hq_prompt_path: 
+    null_text_ratio: 0.1
+
+  val:
+    # eval_list: []
+    eval_list: [realtext, satext_lv2]
+    # eval_list: [realtext, satext_lv3, satext_lv2, satext_lv1]
+
+    realtext:
+      lq_img_path: /mnt/dataset1/text_restoration/tair_published/real_text/LQ
+      hq_img_path: /mnt/dataset1/text_restoration/tair_published/real_text/HQ
+      ann_path: /mnt/dataset1/text_restoration/tair_published/real_text/realtext_ann.json
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 847
+      val_img_id: [Canon_001_HR_crop_1, Canon_21_x4_5_crop_0, Canon_24_x4_21_crop_0, Canon_30_x4_44_crop_0, Canon_31_x4_52_crop_0, Canon_32_x4_21_crop_0, Canon_32_x4_23_crop_0, Canon_33_x4_33_crop_0, Canon_37_x4_45_crop_0, Canon_41_x4_32_crop_0, Canon_41_x4_35_crop_0, DSC_0972_x4_13_crop_0, DSC_0984_x4_2_crop_0, DSC_0984_x4_6_crop_0, DSC_1023_x4_16_crop_0, DSC_1330_x4_4_crop_0, DSC_1342_x4_6_crop_0,  ]
+
+
+    satext_lv3:
+      lq_img_path: /mnt/dataset1/text_restoration/SAMText_test_degradation/lv3
+      hq_img_path: /mnt/dataset1/text_restoration/100K/test
+      ann_path: /mnt/dataset1/text_restoration/100K/test/dataset.json
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+  
+    satext_lv2:
+      lq_img_path: /mnt/dataset1/text_restoration/SAMText_test_degradation/lv2
+      hq_img_path: /mnt/dataset1/text_restoration/100K/test
+      ann_path: /mnt/dataset1/text_restoration/100K/test/dataset.json
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 1000
+      val_img_id: [sa_9434_crop_0, sa_82995_crop_0, sa_83375_crop_0, sa_84137_crop_1, sa_87550_crop_1, sa_89493_crop_0, sa_91353_crop_2, sa_93762_crop_0, sa_93833_crop_0, sa_95493_crop_0, sa_99633_crop_0]
+
+    satext_lv1:
+      lq_img_path: /mnt/dataset1/text_restoration/SAMText_test_degradation/lv1
+      hq_img_path: /mnt/dataset1/text_restoration/100K/test
+      ann_path: /mnt/dataset1/text_restoration/100K/test/dataset.json
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+
+    # choose from [gt, pred_tsm, pred_vlm, null]
+    text_cond_prompt: "pred_tsm"
+
+
+    ocr:
+      vis_ocr: True
+      # vis_timestep: [-1] # visualize all timesteps
+      vis_timestep: [0, 1, 2, 3, 4, 5, 10, 20, 30, 39]  # visualize selected time iter
+    
+
+    attn:
+      vis_map: False
+
+
+    eval_region: all
+
+
+    added_prompt: Cinematic, hyper sharpness, highly detailed, perfect without deformations, camera, hyper detailed photo - realistic maximum detail, 32k, Color Grading, ultra HD, extreme meticulous detailing, skin pore detailing.
+    negative_prompt: motion blur, noisy, dotted, bokeh, pointed, CG Style, 3D render, unreal engine, blurring, dirty, messy, worst quality, low quality, frames, watermark, signature, jpeg artifacts, deformed, lowres, chaotic
+    save_prompts: True
+    sample_times: 1
+    guidance_scale: 1.0
+    # guidance_scale: 8.0
+    start_point: noise
+    latent_tiled_size: 64
+    latent_tiled_overlap: 24
+    upscale: 4
+    process_size: 512
+    num_inference_steps: 40
+    align_method: adain
+    
+
+model:
+  noise_scheduler:
+    weighting_scheme: logit_normal
+    logit_mean: 0.0
+    logit_std: 1.0 
+    mode_scale: 1.29
+    precondition_outputs: 1
+
+  dit:
+    name: dit4sr
+    resolution: 512
+    load_precomputed_caption: True
+    use_gtprompt: True
+    text_condition:
+      # caption_style: tag
+      caption_style: descriptive
+
+  ts_module:
+    name: testr 
+
+
+ckpt:
+  init_path:
+    vae: preset/models/stable-diffusion-3.5-medium
+    noise_scheduler: preset/models/stable-diffusion-3.5-medium
+    tokenizer: preset/models/stable-diffusion-3.5-medium
+    text_encoder: preset/models/stable-diffusion-3.5-medium
+    
+    # dit:
+    dit: preset/models/dit4sr/dit4sr_q
+    # ts_module:
+    ts_module: preset/models/testr/totaltext_testr_R_50_polygon.pth
+
+  resume_path:
+    # dit: result_train/stage2/fp16_stage2_testr_1e-04__ocrloss0.01_descriptive_DiTfeat24_dit4sr_lr1e5_ckpt18k_testr_pretrained/checkpoint-6000    
+    # dit: result_train/stage1/fp16_stage1_dit4sr_1e-05_lrbranch-attns_ocrlossNone_descriptive_DiTfeat24/checkpoint-34000
+    dit: 
+    ts_module:
+    # ts_module: result_train/stage2/fp16_stage2_testr_1e-04__ocrloss0.01_descriptive_DiTfeat24_dit4sr_lr1e5_ckpt18k_testr_pretrained/checkpoint-6000
+
+
+train:
+  stage: stage3
+  model_architecture: "dit4sr"
+  model: ["dit4sr", "testr"]
+  lr: [1e-5, 1e-4]
+  finetune: [lrbranch, attns]
+  mixed_precision: 'fp16'
+
+
+  # ----------------------------------
+  #      STAGE3 - MODIFY HERE ! 
+  # ----------------------------------
+  num_train_epochs: 5  # 30k
+  batch_size: 1         
+  num_workers: 4
+  gradient_accumulation_steps: 8
+  
+  
+  max_train_steps: 
+  lr_scheduler: "constant"
+  lr_warmup_steps: 0
+  lr_num_cycles: 1
+  lr_power: 1.0
+  max_grad_norm: 1.0
+  set_grads_to_none: False
+  scale_lr: False
+  use_8bit_adam: False
+  ocr_loss_weight: 1.0
+  
+
+val:
+  val_every_step: 1000
+
+
+save:
+  # output_dir: ./result_train/continue_stage3
+  # output_dir: ./result_train/text_aware_feature_comparison_stage1
+  # output_dir: ./result_train/text_aware_feature_comparison_dit4sr_q
+  
+  output_dir: ./result_train/stage3_dit4sr_detach_testr
+  
+  checkpointing_steps: 1000
+
+
+log:
+  tracker: 
+    report_to: wandb
+    key: e32eed0c2509bf898b850b0065ab62345005fb73
+    # project_name: cvpr26_tair_extension
+    project_name: cvpr26_tair2_train
+    server: 20
+    gpu: 6
+    # msg: ditfeat24_hidden_after
+    # msg: ditfeat24_hidden_after_awarefeatcomparison_stage1
+    # msg: ditfeat24_hidden_after_awarefeatcomparison_dit4sr_q
+
+    # msg: ditfeat24_hidden_after_detach
+    
+    msg: ditfeat24_lqfeat24_hidden_after_detach
+
+  log_dir: logs

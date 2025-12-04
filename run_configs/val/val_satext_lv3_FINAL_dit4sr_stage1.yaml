@@ -1,0 +1,258 @@
+
+
+init:
+  seed: 42
+
+
+data:
+  train:
+    name: 
+    hq_img_path: 
+    ann_path: 
+    hq_prompt_path: 
+    null_text_ratio: 
+
+  val:
+    eval_list: [satext_lv3]
+
+    realtext:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+    satext_lv3:
+      lq_img_path: /mnt/dataset1/text_restoration/SAMText_test_degradation/lv3
+      hq_img_path: /mnt/dataset1/text_restoration/100K/test
+      ann_path: /mnt/dataset1/text_restoration/100K/test/dataset.json
+      vlm_captioner: llava13b
+      vlm_input_ques: 0
+      # vlm_caption_path: result_vlm/orig_dit4sr/satext_lv3/llava13b_prompt
+
+
+      # vlm_caption_path: result_vlm/lq_caption/satext_lv3/satext_lv3_Englishques0/qwenvl_7b
+      vlm_caption_path: result_vlm/lq_caption/satext_lv3/satext_lv3_Englishques1/qwenvl_7b
+      # vlm_caption_path: result_vlm/lq_caption/satext_lv3/satext_lv3_Englishques2/qwenvl_7b
+      # vlm_caption_path: result_vlm/lq_caption/satext_lv3/satext_lv3_Englishques3/qwenvl_7b
+
+
+      val_num_img: 1000
+      val_img_id: []
+  
+    satext_lv2:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+    satext_lv1:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+
+    # choose from [gt, pred_tsm, pred_vlm, null]
+    # text_cond_prompt: "gt"
+    # text_cond_prompt: "null"
+    text_cond_prompt: "pred_vlm"
+
+
+
+
+    vlm:
+      vlm_correction: False 
+      model: qwenvl-7b
+      # vlm_apply_at_iter: [5, 10, 15, 20, 25, 30, 35]
+
+      vlm_apply_at_iter: [10]
+      # vlm_apply_at_iter: [10, 20]
+
+      # vlm_apply_at_iter: [20]
+      # vlm_apply_at_iter: [20, 25, 30, 35]
+      # vlm_apply_at_iter: [20, 30]
+
+      # vlm_apply_at_iter: [30]
+
+      tsm_apply_at_iter:
+
+
+
+    ocr:
+      vis_ocr: True
+      # vis_timestep: [-1] # visualize all timesteps
+      vis_timestep: [0, 1, 2, 3, 4, 5, 10, 20, 30, 39]  # visualize selected time iter
+    
+
+    attn:
+      vis_map: False
+
+
+    eval_region: all
+
+
+    # added_prompt: 
+    # negative_prompt: 
+    added_prompt: Cinematic, hyper sharpness, highly detailed, perfect without deformations, camera, hyper detailed photo - realistic maximum detail, 32k, Color Grading, ultra HD, extreme meticulous detailing, skin pore detailing.
+    negative_prompt: motion blur, noisy, dotted, bokeh, pointed, CG Style, 3D render, unreal engine, blurring, dirty, messy, worst quality, low quality, frames, watermark, signature, jpeg artifacts, deformed, lowres, chaotic
+    save_prompts: True
+    sample_times: 1
+    
+    # guidance_scale: 1.0
+    guidance_scale: 8.0
+
+    start_point: noise
+    
+    latent_tiled_size: 64
+    latent_tiled_overlap: 24
+    upscale: 4
+    process_size: 512
+    num_inference_steps: 40
+
+    # choose from [adain, wavelet]
+    align_method: adain
+    # align_method: wavelet
+    
+
+model:
+  noise_scheduler:
+    weighting_scheme: 
+    logit_mean: 
+    logit_std: 
+    mode_scale: 
+    precondition_outputs:
+
+  dit:
+    name: 
+    resolution: 
+    load_precomputed_caption: 
+    use_gtprompt: 
+    text_condition:
+      # caption_style: tag
+      caption_style: descriptive
+
+  ts_module:
+    name:  
+
+
+ckpt:
+  init_path:
+    vae: preset/models/stable-diffusion-3.5-medium
+    noise_scheduler: preset/models/stable-diffusion-3.5-medium
+    tokenizer: preset/models/stable-diffusion-3.5-medium
+    text_encoder: preset/models/stable-diffusion-3.5-medium
+    dit: preset/models/dit4sr/dit4sr_q
+    ts_module: 
+  resume_path:
+    # dit: result_train/JIHYE_CKPT/jihye_stage1/checkpoint-32000
+    dit: 
+    ts_module: 
+
+
+train:
+  stage: stage1
+  mixed_precision: 'fp16'
+  model: ['transformer']
+
+
+  transformer:
+    # choose from ["dit4sr", "dit4sr_ocrbranch_ocr2hq", "dit4sr_ocrbranch_ocr2hq2ocr"]
+    architecture: "dit4sr"
+    ocr_branch_init: 
+    lr: 
+    finetune_layer_names: []
+    feat_extract: 
+    feat_extract_layer: []
+
+
+
+  ts_module:
+    architecture: testr
+    lr: 
+    finetune_layer_names: []
+    
+
+
+  num_train_epochs: 
+  batch_size:        
+  num_workers: 
+  gradient_accumulation_steps: 
+  max_train_steps: 
+  lr_scheduler: 
+  lr_warmup_steps:
+  lr_num_cycles: 
+  lr_power: 
+  max_grad_norm: 
+  set_grads_to_none: 
+  scale_lr: 
+  use_8bit_adam: 
+  ocr_loss_weight: 
+  
+
+val:
+  val_every_step: 
+
+
+save:
+  # output_dir: ./result_val_FINAL_dit4sr/full_eval
+  # output_dir: ./result_val_FINAL_dit4sr/few_eval
+
+  # output_dir: ./result_val_FINAL_FINAL_dit4sr/few_eval
+  output_dir: ./result_val_FINAL_FINAL_dit4sr/full_eval
+  checkpointing_steps:
+
+
+log:
+  tracker: 
+    report_to: wandb
+    key: e32eed0c2509bf898b850b0065ab62345005fb73
+    project_name: cvpr26_tair2_val
+    server: 20
+    gpu: "6"
+    
+
+    # msg: "FINAL__ckpt-2k__added-prompt"
+
+    # msg: "FINAL__ckpt-3k"
+    # msg: "FINAL__ckpt-5k"
+
+
+    # msg: "ir-dit4sr-q__tsm-s2-40k"
+    # msg: "ir-dit4sr-s1-jihye__tsm-s2-40k"
+    
+
+    # msg: "extended-stage2__finetune-lq__ckpt1k"
+    # msg: "extended-stage2__ft-lq-hq__ckpt1k"
+
+    # msg: "STAGE2__finetune-tsm__ckpt-40k__ir-dit4sr-q"
+    # msg: "STAGE2__finetune-tsm__ckpt-40k__ir-dit4sr-s1-jihye"
+
+    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__gt-prompt"
+    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt"
+
+
+    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques0-qwen7b"
+    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques1-qwen7b"
+    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques2-qwen7b"
+    # msg: "STAGE1__finetune-lq-hq__ckpt-jihye__vlm-prompt-ques3-qwen7b"
+
+
+
+
+    # msg: "dit4sr-baseline__vlm-ques1-qwenvl-7b-cfg1"
+    msg: "dit4sr-baseline__vlm-ques1-qwenvl-7b-cfg8"
+
+
+  log_dir: logs

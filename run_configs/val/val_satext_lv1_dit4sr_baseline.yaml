@@ -1,0 +1,184 @@
+
+
+init:
+  seed: 42
+
+
+data:
+  train:
+    name: 
+    hq_img_path: 
+    ann_path: 
+    hq_prompt_path: 
+    null_text_ratio:
+
+
+  val:
+    eval_list: [satext_lv1]
+
+    realtext:
+      lq_img_path: 
+      hq_img_path:
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+
+    satext_lv3:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+  
+    satext_lv2:
+      lq_img_path: 
+      hq_img_path: 
+      ann_path: 
+      vlm_captioner: 
+      vlm_input_ques: 
+      vlm_caption_path: 
+      val_num_img: 
+      val_img_id: []
+
+
+    satext_lv1:
+      lq_img_path: /mnt/dataset1/text_restoration/SAMText_test_degradation/lv1
+      hq_img_path: /mnt/dataset1/text_restoration/100K/test
+      ann_path: /mnt/dataset1/text_restoration/100K/test/dataset.json
+      vlm_captioner: llava_13b
+      vlm_input_ques: 0
+      vlm_caption_path: result_vlm/orig_dit4sr/satext_lv1/llava13b_prompt
+      val_num_img: 1000
+      val_img_id: []
+
+
+     # choose from [gt, null, red_tsm, pred_vlm]
+    # text_cond_prompt: "gt"
+    # text_cond_prompt: "null"
+    # text_cond_prompt: "pred_tsm"
+    text_cond_prompt: "pred_vlm"
+
+
+
+    ocr:
+      vis_ocr: False
+      vis_timestep: 
+
+
+    attn:
+      vis_map: False
+    
+
+    # choose from ['crop', 'full']
+    eval_region: full
+
+
+    added_prompt: Cinematic, hyper sharpness, highly detailed, perfect without deformations, camera, hyper detailed photo - realistic maximum detail, 32k, Color Grading, ultra HD, extreme meticulous detailing, skin pore detailing.
+    negative_prompt: motion blur, noisy, dotted, bokeh, pointed, CG Style, 3D render, unreal engine, blurring, dirty, messy, worst quality, low quality, frames, watermark, signature, jpeg artifacts, deformed, lowres, chaotic
+    save_prompts: True
+    sample_times: 1
+    
+    # guidance_scale: 1.0
+    guidance_scale: 8.0
+    start_point: noise
+
+    latent_tiled_size: 64
+    latent_tiled_overlap: 24
+    upscale: 4
+    process_size: 512
+    num_inference_steps: 40
+
+    # choose from [adain, wavelet]
+    align_method: adain
+    # align_method: wavelet
+
+
+
+
+model:
+  noise_scheduler:
+    weighting_scheme:
+    logit_mean: 
+    logit_std: 
+    mode_scale:
+    precondition_outputs: 
+
+  dit:
+    name: 
+    resolution: 
+    use_gtprompt: 
+    text_condition:
+      # caption_style: tag
+      caption_style: descriptive
+
+  ts_module:
+    name:
+
+
+ckpt:
+  init_path:
+    vae: preset/models/stable-diffusion-3.5-medium
+    noise_scheduler: preset/models/stable-diffusion-3.5-medium
+    tokenizer: preset/models/stable-diffusion-3.5-medium
+    text_encoder: preset/models/stable-diffusion-3.5-medium
+    dit: preset/models/dit4sr/dit4sr_q
+    ts_module: preset/models/testr/totaltext_testr_R_50_polygon.pth
+  resume_path:
+    dit:
+    ts_module: 
+
+
+
+
+train:
+  stage: 
+  model: []
+  lr: []
+  finetune: []
+  batch_size: 
+  num_workers: 
+  num_train_epochs:
+  max_train_steps: 
+  mixed_precision: 'fp16'
+  lr_scheduler: 
+  lr_warmup_steps: 
+  lr_num_cycles: 
+  lr_power: 
+  max_grad_norm: 
+  set_grads_to_none: 
+  gradient_checkpointing:
+  gradient_accumulation_steps: 
+  scale_lr: 
+  use_8bit_adam: 
+  ocr_loss_weight: 
+  
+
+val:
+  val_every_step:
+
+
+save:
+  # output_dir: ./result_val/few_eval
+  # output_dir: ./result_val/full_eval
+  output_dir: ./result_val_dit4sr_2nd/full_eval
+  checkpointing_steps: 
+
+
+log:
+  tracker: 
+    report_to: wandb 
+    key: e32eed0c2509bf898b850b0065ab62345005fb73
+    # project_name: cvpr26_tair_extension
+    project_name: cvpr26_tair2_val
+    server: 20
+    gpu: 4
+    msg: ""
+  log_dir: logs
