@@ -77,7 +77,7 @@ data:
       vis_timestep: [0, 1, 2, 3, 4, 5, 10, 20, 30, 39]  # visualize selected time iter
     
 
-    attention_map::
+    attention_map:
       vlm:
         vis_map: False
       tsm:

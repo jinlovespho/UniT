@@ -1294,6 +1294,7 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                                     )
                                     inputs = inputs.to(vlm_model.device)
                                     # Inference: Generation of the output
+                                    breakpoint()
                                     generated_ids = vlm_model.generate(**inputs, max_new_tokens=128)
                                     generated_ids_trimmed = [
                                         out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
@@ -1301,7 +1302,6 @@ class StableDiffusion3ControlNetPipeline(DiffusionPipeline, SD3LoraLoaderMixin, 
                                     vlm_pred_texts = vlm_processor.batch_decode(
                                         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
                                     )
-                                    
                                     
                                     if type(vlm_pred_texts) == list and len(vlm_pred_texts) != 0:
                                         

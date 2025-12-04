@@ -45,7 +45,9 @@ pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https
 pip install -r requirements.txt
 pip install numpy==1.26.3 --no-deps
 pip install pyiqa==0.1.14.1 --no-deps 
-cd detectron2 
+cd transformers
+pip install -e .
+cd ../detectron2 
 pip install -e . --no-deps --no-build-isolation --config-settings editable_mode=compat
 cd ../testr 
 pip install -e . --no-deps --no-build-isolation --config-settings editable_mode=compat

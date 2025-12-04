@@ -1,7 +1,7 @@
 # python3.9
 # pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu121
+# transformers==4.51.3
 diffusers==0.31.0
-transformers==4.51.3
 xformers==0.0.25.post1 
 accelerate==1.10.1
 sentencepiece==0.2.0
